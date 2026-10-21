@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { timingSafeEqual } from 'node:crypto';
 import { env, isAdmin } from '../../../lib/server/config';
 import { database, getApplication } from '../../../lib/server/database';
-import { telegram, drainNotifications } from '../../../lib/server/telegram';
+import { telegram, answerCallbackQuery, drainNotifications } from '../../../lib/server/telegram';
 import { json, readJson } from '../../../lib/server/http';
 import { summary, keyboard, details, parseCallback, exportCsv } from '../../../lib/telegram-format';
 import type { Application } from '../../../lib/validation';
@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     if (query) {
       if (!isAdmin(query.from?.id) || String(query.message?.chat?.id) !== env('TELEGRAM_CHAT_ID')) {
-        await telegram('answerCallbackQuery', {
+        await answerCallbackQuery({
           callback_query_id: query.id,
           text: 'Керування доступне організаторам.',
           show_alert: true,
@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
       if (!action) return json({ ok: true });
       if (action.action === 'view') {
         const app = await getApplication(action.id);
-        await telegram('answerCallbackQuery', {
+        await answerCallbackQuery({
           callback_query_id: query.id,
           text: app ? 'Надсилаємо анкету.' : 'Заявку не знайдено.',
         });
@@ -61,7 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
           p_action_id: query.id,
         });
         const app = await getApplication(action.id);
-        await telegram('answerCallbackQuery', {
+        await answerCallbackQuery({
           callback_query_id: query.id,
           text: 'Статус збережено.',
         });

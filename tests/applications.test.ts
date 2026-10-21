@@ -281,3 +281,126 @@ test('retry endpoint requires its own secret', async () => {
     401,
   );
 });
+
+test('expired callback acknowledgement still allows full application delivery', async () => {
+  configure();
+  let delivered = false;
+  globalThis.fetch = async (input, options) => {
+    const url = String(input);
+    if (url.includes('forum_applications?'))
+      return reply([
+        {
+          id,
+          kind: 'participant',
+          answers: validateApplication(fixture()).data!.answers,
+          status: 'new',
+        },
+      ]);
+    if (url.includes('answerCallbackQuery'))
+      return reply(
+        {
+          ok: false,
+          error_code: 400,
+          description:
+            'Bad Request: query is too old and response timeout expired or query ID is invalid',
+        },
+        400,
+      );
+    if (url.includes('sendMessage')) {
+      assert.match(JSON.parse(String(options?.body)).text, /Повна анкета учасника/);
+      delivered = true;
+      return reply({ ok: true, result: { message_id: 1 } });
+    }
+    assert.fail('Unexpected request');
+  };
+  const response = await telegramWebhook({
+    request: new Request('http://localhost/api/telegram/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret',
+      },
+      body: JSON.stringify({
+        callback_query: {
+          id: 'expired-callback',
+          from: { id: 123 },
+          data: 'view:' + id,
+          message: { message_id: 1, chat: { id: -1001234 } },
+        },
+      }),
+    }),
+  } as APIContext);
+  assert.equal(response.status, 200);
+  assert.equal(delivered, true);
+});
+
+test('expired unauthorized callbacks finish without accessing or sending applications', async () => {
+  configure();
+  globalThis.fetch = async (input) => {
+    assert.ok(String(input).includes('answerCallbackQuery'));
+    return reply(
+      { ok: false, error_code: 400, description: 'Bad Request: query ID is invalid' },
+      400,
+    );
+  };
+  const response = await telegramWebhook({
+    request: new Request('http://localhost/api/telegram/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret',
+      },
+      body: JSON.stringify({
+        callback_query: {
+          id: 'expired-unauthorized',
+          from: { id: 999 },
+          data: 'view:' + id,
+          message: { message_id: 1, chat: { id: -1001234 } },
+        },
+      }),
+    }),
+  } as APIContext);
+  assert.equal(response.status, 200);
+});
+
+test('expired callback handling does not hide a failed full application send', async () => {
+  configure();
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    if (url.includes('forum_applications?'))
+      return reply([
+        {
+          id,
+          kind: 'participant',
+          answers: validateApplication(fixture()).data!.answers,
+          status: 'new',
+        },
+      ]);
+    if (url.includes('answerCallbackQuery'))
+      return reply(
+        { ok: false, error_code: 400, description: 'Bad Request: query is too old' },
+        400,
+      );
+    if (url.includes('sendMessage'))
+      return reply({ ok: false, error_code: 403, description: 'Forbidden' }, 403);
+    assert.fail('Unexpected request');
+  };
+  const response = await telegramWebhook({
+    request: new Request('http://localhost/api/telegram/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret',
+      },
+      body: JSON.stringify({
+        callback_query: {
+          id: 'expired-send-failure',
+          from: { id: 123 },
+          data: 'view:' + id,
+          message: { message_id: 1, chat: { id: -1001234 } },
+        },
+      }),
+    }),
+  } as APIContext);
+  assert.equal(response.status, 503);
+});
