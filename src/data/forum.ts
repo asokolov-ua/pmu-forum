@@ -5,7 +5,7 @@ export const forum = {
   email: 'patrioticnamolodukraini@gmail.com',
   description:
     'Два дні діалогу про те, хто ми, що нас об’єднує та яку Україну ми творимо. Форум від Патріотичної молоді України. 27–28 листопада 2026, Київ.',
-  consentVersion: '2026-10-20',
+  consentVersion: '2026-10-21',
 };
 
 export const themes = [
