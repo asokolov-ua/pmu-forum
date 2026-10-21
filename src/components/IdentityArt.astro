@@ -1,0 +1,15 @@
+---
+import HeritageOrnament from './HeritageOrnament.astro';
+const { compact = false } = Astro.props;
+---
+
+<div class:list={['heritage-wordmark', { compact }]} aria-hidden="true">
+  <HeritageOrnament id="sidebar-embroidery" class="wordmark-ornament" />
+  <span class="wordmark-initials">ФНІ</span>
+  <span class="wordmark-name">
+    Форум
+    <br />
+    національної ідентичності
+  </span>
+  <span class="wordmark-date">27–28 листопада · Київ</span>
+</div>

@@ -1,0 +1,419 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Arrow from '../components/Arrow.astro';
+import HeritageOrnament from '../components/HeritageOrnament.astro';
+import { themes } from '../data/forum';
+const faqs = [
+  [
+    'Хто може взяти участь?',
+    'Молодь від 16 років: студенти, учні, лідери студентського самоврядування, молодіжні працівники, представники громадських організацій та активісти. Важливі ваша мотивація та інтерес до тем форуму.',
+  ],
+  [
+    'Чи потрібно платити за участь?',
+    'Участь у форумі безкоштовна. Умови щодо проїзду, проживання та харчування команда повідомить окремо після їх уточнення.',
+  ],
+  [
+    'Де й коли відбудеться форум?',
+    '27–28 листопада 2026 року в Києві, офлайн. Приміщення уточнюється. Організаційна команда повідомить підтвердженим учасникам адресу та деталі участі.',
+  ],
+  [
+    'Як відбувається відбір?',
+    'Заповніть анкету учасника. Команда розгляне заявки на конкурсній основі та повідомить результат на вказану електронну адресу. Запланована кількість учасників — 100–120 осіб. Подання заявки ще не означає підтвердження участі.',
+  ],
+  [
+    'Як запропонувати виступ?',
+    'Заповніть анкету спікера: розкажіть про свою діяльність, запропонуйте тему й оберіть один формат. Команда зв’яжеться з вами для обговорення участі та програми.',
+  ],
+  [
+    'Коли з’явиться програма?',
+    'Програму та склад спікерів опублікуємо після їх підтвердження. За оновленнями можна стежити в соціальних мережах Патріотичної молоді України.',
+  ],
+];
+---
+
+<Layout>
+  <main id="main">
+    <section class="hero hero--heritage wrap" aria-labelledby="hero-title">
+      <div class="heritage-watermark" aria-hidden="true">
+        ФНІ
+      </div>
+      <HeritageOrnament id="hero-embroidery-top" class="heritage-ornament heritage-ornament-top" />
+      <div class="hero-copy">
+        <div class="event-pill">
+          <span class="status-dot"></span>27–28 листопада 2026<span class="pill-separator">/</span>
+          Київ
+        </div>
+        <p class="eyebrow hero-label">Патріотична молодь України запрошує</p>
+        <h1 id="hero-title">
+          <span class="heritage-title">Форум</span>
+          <span class="heritage-subtitle">національної ідентичності</span>
+        </h1>
+        <p class="hero-description">
+          Хто ми. Що нас єднає.
+          <br />
+          <strong>Яку Україну ми творимо.</strong>
+        </p>
+        <p class="hero-intro">
+          Два дні відкритого діалогу, нових знайомств і спільного пошуку відповідей разом із
+          Патріотичною молоддю України.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="/participants">
+            Стати учасником
+            <Arrow diagonal />
+          </a>
+          <a class="text-link" href="/speakers">
+            Запропонувати виступ
+            <Arrow diagonal />
+          </a>
+        </div>
+        <div class="hero-note">
+          <span>Участь безкоштовна</span>
+          <span>Офлайн · 16+</span>
+        </div>
+      </div>
+      <HeritageOrnament
+        id="hero-embroidery-bottom"
+        class="heritage-ornament heritage-ornament-bottom"
+      />
+    </section>
+    <div class="facts-strip wrap">
+      <div>
+        <strong>02</strong>
+        <span>
+          дні діалогу
+          <br />
+          та взаємодії
+        </span>
+      </div>
+      <div>
+        <strong>07</strong>
+        <span>
+          тематичних
+          <br />
+          напрямів
+        </span>
+      </div>
+      <div>
+        <strong>100–120</strong>
+        <span>
+          учасників
+          <br />
+          зі спільними цінностями
+        </span>
+      </div>
+      <div>
+        <span class="facts-asterisk">✳</span>
+        <span>
+          Різний досвід.
+          <br />
+          Спільне майбутнє.
+        </span>
+      </div>
+    </div>
+    <section class="section wrap about-section" id="about">
+      <div class="section-label">
+        <span class="eyebrow">01 / Про форум</span>
+        <span class="small-note">Почути. Осмислити. Діяти.</span>
+      </div>
+      <div class="about-grid">
+        <h2>
+          Ідентичність —<br />
+          це те, що ми
+          <br />
+          <span class="muted-heading">творимо разом.</span>
+        </h2>
+        <div class="about-copy">
+          <p class="lead">
+            Простір для відвертої розмови між молоддю, експертами та людьми, які змінюють Україну.
+          </p>
+          <p>
+            Повномасштабна війна та глобальні зміни змушують нас по-новому осмислювати себе. Форум
+            національної ідентичності об’єднує тих, хто хоче глибше зрозуміти українську історію,
+            культуру й мову та свою роль у майбутньому країни.
+          </p>
+          <p>
+            Ми прагнемо посилити національну свідомість молоді, дати практичні інструменти протидії
+            інформаційним маніпуляціям і підтримати активну участь у громадянському суспільстві.
+          </p>
+          <a class="text-link" href="#themes">
+            Про що говоритимемо
+            <Arrow />
+          </a>
+        </div>
+      </div>
+      <div class="goals-row">
+        <div>
+          <span class="goal-number">01</span>
+          <h3>Осмислити власне</h3>
+          <p>Побачити роль мови, культури та історичної пам’яті як фундаменту державності.</p>
+        </div>
+        <div>
+          <span class="goal-number">02</span>
+          <h3>Знайти однодумців</h3>
+          <p>
+            Познайомитися з активною молоддю, громадськими ініціативами та експертним середовищем.
+          </p>
+        </div>
+        <div>
+          <span class="goal-number">03</span>
+          <h3>Розповісти про Україну</h3>
+          <p>Дослідити сучасну українську ідентичність, за якою нас упізнають у світі.</p>
+        </div>
+      </div>
+    </section>
+    <section class="themes-section" id="themes">
+      <div class="wrap section">
+        <div class="section-label">
+          <span class="eyebrow">02 / Тематичні напрями</span>
+          <span class="small-note">Сім поглядів на спільне</span>
+        </div>
+        <div class="section-intro">
+          <h2>
+            Багато голосів.
+            <br />
+            Одна розмова.
+          </h2>
+          <p>
+            Від особистого досвіду до спільного майбутнього — досліджуємо те, що формує нас як
+            суспільство.
+          </p>
+        </div>
+        <div class="themes-list">
+          {themes.map((theme, index) => (
+            <details class="theme-row">
+              <summary>
+                <span class="theme-number">0{index + 1}</span>
+                <h3>{theme.title}</h3>
+                <span class="theme-tag">{theme.tag}</span>
+                <span class="details-plus" aria-hidden="true">
+                  +
+                </span>
+              </summary>
+              <p>{theme.description}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+    <section class="section wrap formats-section">
+      <div class="section-label">
+        <span class="eyebrow">03 / Формат</span>
+        <span class="small-note">Досвід, що виходить за межі лекцій</span>
+      </div>
+      <div class="section-intro">
+        <h2>
+          Не лише слухати.
+          <br />
+          <span class="muted-heading">Бути частиною.</span>
+        </h2>
+        <p>
+          Два робочі дні, щоб ставити запитання, обмінюватися досвідом і знаходити власні відповіді.
+        </p>
+      </div>
+      <div class="format-grid">
+        <article>
+          <span class="format-icon" aria-hidden="true">
+            ↗
+          </span>
+          <span class="eyebrow">Почути</span>
+          <h3>Експертні лекції</h3>
+          <p>Погляди фахівців на складні питання, що потребують змістовної розмови.</p>
+        </article>
+        <article>
+          <span class="format-icon" aria-hidden="true">
+            ≋
+          </span>
+          <span class="eyebrow">Обговорити</span>
+          <h3>Панельні дискусії</h3>
+          <p>Різні позиції, відкриті запитання та діалог із запрошеними експертами.</p>
+        </article>
+        <article>
+          <span class="format-icon" aria-hidden="true">
+            ✳
+          </span>
+          <span class="eyebrow">Спробувати</span>
+          <h3>Інтерактивні воркшопи</h3>
+          <p>Практична взаємодія та інструменти, які можна застосувати у власній діяльності.</p>
+        </article>
+        <article>
+          <span class="format-icon" aria-hidden="true">
+            ↔
+          </span>
+          <span class="eyebrow">Познайомитися</span>
+          <h3>Нетворкінг-сесії</h3>
+          <p>Нові зв’язки між молоддю, громадськими ініціативами та експертним середовищем.</p>
+        </article>
+      </div>
+      <div class="program-note">
+        <span class="status-dot"></span>
+        <p>Програму та склад спікерів готуємо до оголошення.</p>
+        <a
+          class="text-link"
+          href="https://t.me/patriotichna_molod"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Стежити за оновленнями
+          <Arrow diagonal />
+        </a>
+      </div>
+    </section>
+    <section class="participation-section" id="participation">
+      <div class="section wrap">
+        <div class="section-label">
+          <span class="eyebrow">04 / Участь</span>
+          <span class="small-note">Ваш досвід має значення</span>
+        </div>
+        <div class="participation-grid">
+          <div>
+            <h2>
+              Є інтерес.
+              <br />Є позиція.
+              <br />
+              <span>Є місце для вас.</span>
+            </h2>
+            <p>
+              Запрошуємо проактивну молодь від 16 років: студентів, лідерів самоврядування,
+              молодіжних працівників, представників громадських організацій та активістів.
+            </p>
+            <div class="participation-badges">
+              <span>Безкоштовно</span>
+              <span>Офлайн у Києві</span>
+              <span>Конкурсний відбір</span>
+            </div>
+          </div>
+          <ol class="participation-steps">
+            <li>
+              <span>01</span>
+              <div>
+                <h3>Заповніть анкету</h3>
+                <p>
+                  Розкажіть про себе, свою мотивацію та інтереси. Оберіть анкету учасника або
+                  спікера.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <h3>Дочекайтеся відповіді</h3>
+                <p>Команда розгляне заявку та повідомить результат на вказану електронну пошту.</p>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <h3>Зустрінемося на форумі</h3>
+                <p>Після підтвердження ви отримаєте організаційні деталі та точну локацію.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+    <section class="section wrap organizer-section">
+      <div class="organizer-photo">
+        <img
+          src="/images/pmu-community.jpeg"
+          alt="Представник ПМУ виступає на молодіжному заході"
+          width="1194"
+          height="896"
+          loading="lazy"
+        />
+        <span>Із життя спільноти ПМУ</span>
+      </div>
+      <div class="organizer-copy">
+        <span class="eyebrow">05 / Організатор</span>
+        <h2>
+          Молодь, яка
+          <br />
+          діє заради
+          <br />
+          <span class="muted-heading">свого.</span>
+        </h2>
+        <p>
+          «Патріотична молодь України» — молодіжний проєкт, який розвиває національну свідомість,
+          поширює цінності української ідентичності та об’єднує ініціативну молодь.
+        </p>
+        <p>
+          Цей форум — ще одна можливість зібратися, почути одне одного та зробити крок до спільного
+          майбутнього.
+        </p>
+        <a class="text-link" href="https://pmu.org.ua/" target="_blank" rel="noopener noreferrer">
+          Більше про ПМУ
+          <Arrow diagonal />
+        </a>
+      </div>
+    </section>
+    <section class="faq-section wrap section" id="faq">
+      <div>
+        <span class="eyebrow">06 / Важливо знати</span>
+        <h2>
+          Можливо,
+          <br />
+          ви запитаєте.
+        </h2>
+        <p>
+          Залишилися запитання?
+          <br />
+          <a href="#contacts" class="text-link">
+            Напишіть команді
+            <Arrow diagonal />
+          </a>
+        </p>
+      </div>
+      <div class="faq-list">
+        {faqs.map(([question, answer]) => (
+          <details>
+            <summary>
+              {question}
+              <span class="details-plus" aria-hidden="true">
+                +
+              </span>
+            </summary>
+            <p>{answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+    <section class="apply-section wrap" id="apply">
+      <div class="apply-heading">
+        <span class="eyebrow">Зустрінемося 27–28 листопада</span>
+        <h2>Долучайте свій голос.</h2>
+        <p>Оберіть, як хочете стати частиною форуму.</p>
+      </div>
+      <div class="apply-grid">
+        <a href="/participants" class="apply-card">
+          <span class="eyebrow">Для учасників · 16+</span>
+          <h3>
+            Хочу долучитися
+            <br />
+            до форуму
+          </h3>
+          <p>Слухати, дискутувати, знайомитися та шукати відповіді разом.</p>
+          <span class="apply-link">
+            Подати заявку учасника
+            <Arrow diagonal />
+          </span>
+        </a>
+        <a href="/speakers" class="apply-card speaker-card">
+          <span class="eyebrow">Для спікерів</span>
+          <h3>
+            Маю чим
+            <br />
+            поділитися
+          </h3>
+          <p>Запропонуйте тему виступу, воркшопу, дискусії або виставки.</p>
+          <span class="apply-link">
+            Запропонувати виступ
+            <Arrow diagonal />
+          </span>
+        </a>
+      </div>
+      <p class="apply-footnote">
+        Кількість місць обмежена. Участь — після підтвердження організаторами.
+      </p>
+    </section>
+  </main>
+</Layout>

@@ -1,0 +1,205 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FormField from './FormField.astro';
+import IdentityArt from './IdentityArt.astro';
+import Arrow from './Arrow.astro';
+import { participantSteps, speakerSteps } from '../data/forum';
+interface Props {
+  kind: 'participant' | 'speaker';
+}
+const { kind } = Astro.props;
+const speaker = kind === 'speaker';
+const steps = speaker ? speakerSteps : participantSteps;
+const title = speaker ? 'Заявка спікера' : 'Реєстрація учасника';
+---
+
+<Layout title={title} form noindex>
+  <main id="main" class="registration-page wrap">
+    <div class="breadcrumbs">
+      <a href="/">Головна</a>
+      <span>/</span>
+      <span>{title}</span>
+    </div>
+    <div class="registration-layout">
+      <aside class="registration-sidebar">
+        <span class="eyebrow">Форум національної ідентичності</span>
+        <h1>
+          {speaker ? (
+            <>
+              Ваш досвід.
+              <br />
+              Спільна розмова.
+            </>
+          ) : (
+            <>
+              Ваш голос
+              <br />
+              має значення.
+            </>
+          )}
+        </h1>
+        <p>
+          {speaker
+            ? 'Запропонуйте тему та формат. Разом створимо простір для змістовного діалогу.'
+            : 'Розкажіть про себе та долучайтеся до діалогу про наше спільне майбутнє.'}
+        </p>
+        <div class="registration-facts">
+          <span>27–28.11.2026</span>
+          <span>Київ · офлайн</span>
+          <span>Безкоштовно</span>
+          {!speaker && <span>16+</span>}
+        </div>
+        <IdentityArt compact />
+        <p class="sidebar-help">
+          Оберіть інший шлях:
+          <br />
+          <a href={speaker ? '/participants' : '/speakers'}>
+            {speaker ? 'Заявка учасника ↗' : 'Заявка спікера ↗'}
+          </a>
+        </p>
+      </aside>
+      <div class="form-panel">
+        <p class="form-status" role="status" data-registration-status>
+          Прийом заявок ще не відкрито. Ви можете ознайомитися з анкетою.
+        </p>
+        <noscript>
+          <p class="form-message">
+            Для покрокової анкети потрібен JavaScript. Увімкніть його або зверніться до команди за
+            контактами внизу сторінки.
+          </p>
+        </noscript>
+        <form id="registration-form" data-kind={kind} novalidate>
+          <input type="hidden" name="kind" value={kind} />
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Ваш вебсайт</label>
+            <input id="website" type="text" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <ol class="form-progress" aria-label="Кроки анкети">
+            {steps.map((step, index) => (
+              <li data-progress={index} aria-current={index === 0 ? 'step' : undefined}>
+                <span>0{index + 1}</span> {step.title}
+              </li>
+            ))}
+          </ol>
+          {steps.map((step, index) => (
+            <section data-step={index} hidden={index !== 0} aria-labelledby={`step-title-${index}`}>
+              <div class="step-heading">
+                <span class="eyebrow">Крок {index + 1} із 3 · * обов’язкові поля</span>
+                <h2 id={`step-title-${index}`} tabindex="-1">
+                  {step.title}
+                </h2>
+                <p>{step.description}</p>
+              </div>
+              {step.fields.map((field) => (
+                <FormField field={field} />
+              ))}
+              {index === 2 && (
+                <>
+                  <fieldset
+                    class="field consent-field"
+                    data-field="privacyConsent"
+                    data-required="true"
+                  >
+                    <legend class="field-label">
+                      Згода на обробку персональних даних
+                      <span class="required-star" aria-hidden="true">
+                        *
+                      </span>
+                    </legend>
+                    <label class="choice">
+                      <input
+                        type="checkbox"
+                        name="privacyConsent"
+                        value="yes"
+                        required
+                        aria-describedby="privacyConsent-error"
+                      />
+                      <span>
+                        Погоджуюся на обробку моїх персональних даних організаторами для розгляду
+                        заявки, зв’язку зі мною та організації участі у форумі відповідно до{' '}
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer">
+                          повідомлення про обробку персональних даних ↗
+                        </a>
+                        .
+                      </span>
+                    </label>
+                    <p class="field-error" id="privacyConsent-error"></p>
+                  </fieldset>
+                  <FormField
+                    field={{
+                      name: 'photoConsent',
+                      label: 'Згода на фото та відеозйомку',
+                      type: 'radio',
+                      required: true,
+                      options: ['Так', 'Ні'],
+                      hint: 'Вкажіть свій вибір щодо фото та відеозйомки під час форуму.',
+                    }}
+                  />
+                  <p class="review-note">
+                    Перед надсиланням перевірте вказану електронну пошту. Подання заявки ще не
+                    означає підтвердження участі — команда повідомить результат розгляду окремо.
+                  </p>
+                </>
+              )}
+            </section>
+          ))}
+          <div class="form-message" id="form-message" role="alert" tabindex="-1" hidden></div>
+          <div class="form-actions">
+            <button class="button button-secondary" type="button" data-back hidden>
+              ← Назад
+            </button>
+            <button class="button next-button" type="button" data-next>
+              Продовжити
+              <Arrow />
+            </button>
+            <button class="button next-button" type="submit" data-submit hidden disabled>
+              Надіслати заявку
+              <Arrow diagonal />
+            </button>
+          </div>
+          <p class="form-footer-note">
+            Відповіді зберігаються під час переходу між кроками.
+            <br />
+            Не закривайте сторінку до завершення.
+          </p>
+        </form>
+        <section
+          class="form-success"
+          data-success
+          hidden
+          aria-labelledby="success-title"
+          tabindex="-1"
+        >
+          <span class="success-icon" aria-hidden="true">
+            ✓
+          </span>
+          <h2 id="success-title">Дякуємо за {speaker ? 'запропонований виступ' : 'реєстрацію'}!</h2>
+          <p>
+            Вашу заявку на Форум національної ідентичності успішно отримано. Організаційна команда
+            опрацює її та повідомить вас про{' '}
+            {speaker ? 'подальше обговорення виступу' : 'підтвердження участі'} й організаційні
+            деталі на вказану електронну адресу.
+          </p>
+          <p>
+            Стежте за оновленнями Патріотичної молоді України.
+            <br />
+            До зустрічі на форумі!
+          </p>
+          <a
+            class="button"
+            href="https://t.me/patriotichna_molod"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Оновлення в Telegram
+            <Arrow diagonal />
+          </a>
+          <small data-reference></small>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script>
+    import '../scripts/registration';
+  </script>
+</Layout>

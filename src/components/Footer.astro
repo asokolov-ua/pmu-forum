@@ -1,0 +1,37 @@
+---
+import { forum } from '../data/forum';
+---
+
+<footer class="site-footer wrap" id="contacts">
+  <div class="footer-top">
+    <a class="brand" href="https://pmu.org.ua/" target="_blank" rel="noopener noreferrer">
+      <span class="brand-mark">ПМУ</span>
+      <span class="brand-caption">
+        Патріотична
+        <br />
+        молодь України ↗
+      </span>
+    </a>
+    <div class="footer-contact">
+      <span class="eyebrow">Маєте запитання?</span>
+      <a href={`mailto:${forum.email}`}>{forum.email}</a>
+    </div>
+    <div class="social-links">
+      <a href="https://t.me/patriotichna_molod" target="_blank" rel="noopener noreferrer">
+        Telegram ↗
+      </a>
+      <a
+        href="https://www.instagram.com/patriotichna_molod/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Instagram ↗
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Патріотична молодь України</span>
+    <a href="/privacy">Обробка персональних даних</a>
+    <span>Творимо своє майбутнє разом.</span>
+  </div>
+</footer>

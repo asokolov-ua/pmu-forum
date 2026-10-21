@@ -1,0 +1,63 @@
+---
+import Arrow from './Arrow.astro';
+const { form = false } = Astro.props;
+---
+
+<header class="site-header wrap">
+  <a class="brand" href="/" aria-label="Форум національної ідентичності — головна">
+    <span class="brand-mark">ПМУ</span>
+    <span class="brand-caption">
+      Форум національної
+      <br />
+      ідентичності
+    </span>
+  </a>
+  <nav class="desktop-nav" aria-label="Основна навігація">
+    <a href="/#about">Про форум</a>
+    <a href="/#themes">Напрями</a>
+    <a href="/#participation">Участь</a>
+    <a href="/#faq">Запитання</a>
+  </nav>
+  <a class="button button-small header-cta" href={form ? '/#apply' : '#apply'}>
+    {form ? 'Обрати анкету' : 'Долучитися'}
+    <Arrow diagonal />
+  </a>
+  <button
+    class="menu-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="mobile-nav"
+    aria-label="Відкрити меню"
+  >
+    <span></span>
+    <span></span>
+  </button>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Мобільна навігація" hidden>
+    <a href="/#about">Про форум</a>
+    <a href="/#themes">Напрями</a>
+    <a href="/#participation">Участь</a>
+    <a href="/#faq">Запитання</a>
+    <a href="/#apply">Подати заявку ↗</a>
+  </nav>
+</header>
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = document.querySelector<HTMLElement>('#mobile-nav');
+  const setOpen = (open: boolean) => {
+    if (!toggle || !menu) return;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Закрити меню' : 'Відкрити меню');
+    menu.hidden = !open;
+  };
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  matchMedia('(min-width: 901px)').addEventListener('change', (e) => {
+    if (e.matches) setOpen(false);
+  });
+</script>

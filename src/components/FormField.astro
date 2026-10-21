@@ -1,0 +1,88 @@
+---
+import type { FieldDefinition } from '../data/forum';
+interface Props {
+  field: FieldDefinition;
+}
+const { field } = Astro.props;
+const { name, label, type, required = false, options = [], hint, autocomplete, max = 3000 } = field;
+const choice = type === 'radio' || type === 'checkbox';
+const describedBy = [hint ? `${name}-hint` : '', `${name}-error`].filter(Boolean).join(' ');
+---
+
+<fieldset
+  class="field"
+  data-field={name}
+  data-required={required ? 'true' : undefined}
+  data-checkbox-group={type === 'checkbox' ? 'true' : undefined}
+>
+  {choice ? (
+    <legend class="field-label">
+      {label}
+      {required ? (
+        <span class="required-star" aria-hidden="true">
+          *
+        </span>
+      ) : (
+        <small>необов’язково</small>
+      )}
+    </legend>
+  ) : (
+    <label class="field-label" for={name}>
+      {label}
+      {required ? (
+        <span class="required-star" aria-hidden="true">
+          *
+        </span>
+      ) : (
+        <small>необов’язково</small>
+      )}
+    </label>
+  )}
+  {hint && (
+    <p class="field-hint" id={`${name}-hint`}>
+      {hint}
+    </p>
+  )}
+  {choice ? (
+    <div class="choices">
+      {options.map((option, index) => (
+        <label class="choice" for={`${name}-${index}`}>
+          <input
+            id={`${name}-${index}`}
+            type={type}
+            name={name}
+            value={option}
+            required={required && type === 'radio'}
+            aria-describedby={describedBy}
+          />
+          <span>{option}</span>
+        </label>
+      ))}
+    </div>
+  ) : type === 'textarea' ? (
+    <>
+      <textarea
+        id={name}
+        name={name}
+        rows={4}
+        maxlength={max}
+        required={required}
+        aria-describedby={describedBy}
+      ></textarea>
+      <span class="char-count" data-counter={name}>
+        0 / {max}
+      </span>
+    </>
+  ) : (
+    <input
+      id={name}
+      name={name}
+      type={type}
+      required={required}
+      maxlength={max}
+      autocomplete={autocomplete}
+      aria-describedby={describedBy}
+    />
+  )}
+  <p class="field-error" id={`${name}-error`}></p>
+</fieldset>
