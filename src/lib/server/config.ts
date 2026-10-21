@@ -22,7 +22,7 @@ export function registrationOpen(): boolean {
 }
 export function isAdmin(id: unknown): boolean {
   return env('TELEGRAM_ADMIN_IDS')
-    .split(',')
+    .split(/[\s,;]+/)
     .map((value) => value.trim())
     .filter(Boolean)
     .includes(String(id));

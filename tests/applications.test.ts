@@ -9,6 +9,7 @@ import { POST as telegramWebhook } from '../src/pages/api/telegram/webhook';
 import { GET as retry } from '../src/pages/api/telegram/retry';
 import { readJson } from '../src/lib/server/http';
 import { database } from '../src/lib/server/database';
+import { isAdmin } from '../src/lib/server/config';
 
 const id = 'adef0328-9315-4c11-a4b2-96dc7e549310';
 function fixture(kind: 'participant' | 'speaker' = 'participant'): Record<string, unknown> {
@@ -403,4 +404,60 @@ test('expired callback handling does not hide a failed full application send', a
     }),
   } as APIContext);
   assert.equal(response.status, 503);
+});
+
+function accessContext(userId: number, chatId = -1001234): APIContext {
+  return {
+    request: new Request('http://localhost/api/telegram/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Telegram-Bot-Api-Secret-Token': 'test-secret',
+      },
+      body: JSON.stringify({
+        callback_query: {
+          id: 'access-test',
+          from: { id: userId },
+          data: 'view:' + id,
+          message: { message_id: 1, chat: { id: chatId } },
+        },
+      }),
+    }),
+  } as APIContext;
+}
+test('organizer IDs support commas, newlines and semicolons without matching other users', () => {
+  configure();
+  process.env.TELEGRAM_ADMIN_IDS = '123,\n456; 789\n890';
+  for (const allowed of [123, 456, 789, 890]) assert.equal(isAdmin(allowed), true);
+  for (const denied of [12, 1234, 999]) assert.equal(isAdmin(denied), false);
+});
+test('missing organizer access identifies only the requesting user', async () => {
+  configure();
+  let alert = '';
+  globalThis.fetch = async (input, options) => {
+    assert.ok(String(input).includes('answerCallbackQuery'));
+    alert = JSON.parse(String(options?.body)).text;
+    return reply({ ok: true, result: true });
+  };
+  const response = await telegramWebhook(accessContext(999));
+  assert.equal(response.status, 200);
+  assert.match(alert, /999/);
+  assert.match(alert, /TELEGRAM_ADMIN_IDS/);
+  assert.ok(!alert.includes('123') && !alert.includes('456'));
+  assert.ok(alert.length <= 200);
+});
+test('wrong group alert is distinct and does not read an application', async () => {
+  configure();
+  let alert = '';
+  globalThis.fetch = async (input, options) => {
+    assert.ok(String(input).includes('answerCallbackQuery'));
+    alert = JSON.parse(String(options?.body)).text;
+    return reply({ ok: true, result: true });
+  };
+  const response = await telegramWebhook(accessContext(123, -1009999));
+  assert.equal(response.status, 200);
+  assert.match(alert, /-1009999/);
+  assert.match(alert, /TELEGRAM_CHAT_ID/);
+  assert.ok(!alert.includes('TELEGRAM_ADMIN_IDS'));
+  assert.ok(alert.length <= 200);
 });

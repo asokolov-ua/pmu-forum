@@ -34,10 +34,14 @@ export const POST: APIRoute = async ({ request }) => {
   const query = update?.callback_query;
   try {
     if (query) {
-      if (!isAdmin(query.from?.id) || String(query.message?.chat?.id) !== env('TELEGRAM_CHAT_ID')) {
+      const allowedOrganizer = isAdmin(query.from?.id);
+      const chatId = String(query.message?.chat?.id ?? '');
+      if (!allowedOrganizer || chatId !== env('TELEGRAM_CHAT_ID')) {
         await answerCallbackQuery({
           callback_query_id: query.id,
-          text: 'Керування доступне організаторам.',
+          text: !allowedOrganizer
+            ? `Ваш Telegram ID: ${query.from?.id ?? 'невідомий'}. Доступ не налаштований. Додайте його у TELEGRAM_ADMIN_IDS для Production і зробіть Redeploy.`
+            : `ID цього чату: ${chatId || 'невідомий'}. Він не збігається з TELEGRAM_CHAT_ID. Перевірте значення у Production та зробіть Redeploy.`,
           show_alert: true,
         });
         return json({ ok: true });
