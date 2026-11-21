@@ -13,6 +13,8 @@ import { summary, keyboard, details, parseCallback, exportCsv } from '../../../l
 import type { Application } from '../../../lib/validation';
 import { parseReviewCallback, reviewMessage } from '../../../lib/telegram-queue';
 import { readReviewPage } from '../../../lib/server/review-queue';
+import { readForumStats } from '../../../lib/server/forum-stats';
+import { statsMessage } from '../../../lib/telegram-stats';
 export const prerender = false;
 type TelegramUpdate = {
   callback_query?: {
@@ -50,6 +52,16 @@ export const POST: APIRoute = async ({ request }) => {
             ? `Ваш Telegram ID: ${query.from?.id ?? 'невідомий'}. Доступ не налаштований. Додайте його у TELEGRAM_ADMIN_IDS для Production і зробіть Redeploy.`
             : `ID цього чату: ${chatId || 'невідомий'}. Він не збігається з TELEGRAM_CHAT_ID. Перевірте значення у Production та зробіть Redeploy.`,
           show_alert: true,
+        });
+        return json({ ok: true });
+      }
+      if (query.data === 'stats:refresh') {
+        await answerCallbackQuery({ callback_query_id: query.id, text: 'Оновлюємо статистику.' });
+        const stats = await readForumStats();
+        await editMessageText({
+          chat_id: env('TELEGRAM_CHAT_ID'),
+          message_id: query.message!.message_id,
+          ...statsMessage(stats),
         });
         return json({ ok: true });
       }
@@ -115,7 +127,10 @@ export const POST: APIRoute = async ({ request }) => {
       if (!isAdmin(message.from?.id) || String(message.chat?.id) !== env('TELEGRAM_CHAT_ID'))
         return json({ ok: true });
       const command = message.text?.split(/\s/)[0]?.split('@')[0];
-      if (command === '/pending' || command === '/applications') {
+      if (command === '/stats') {
+        const stats = await readForumStats();
+        await telegram('sendMessage', { chat_id: env('TELEGRAM_CHAT_ID'), ...statsMessage(stats) });
+      } else if (command === '/pending' || command === '/applications') {
         const page = await readReviewPage({ kind: 'participant', filter: 'pending' });
         await telegram('sendMessage', { chat_id: env('TELEGRAM_CHAT_ID'), ...reviewMessage(page) });
       } else if (command === '/export_participants' || command === '/export_speakers') {
@@ -146,7 +161,7 @@ export const POST: APIRoute = async ({ request }) => {
       } else if (command === '/help' || command === '/start') {
         await telegram('sendMessage', {
           chat_id: env('TELEGRAM_CHAT_ID'),
-          text: 'Форум національної ідентичності\n\nКеруйте заявками кнопками під повідомленнями.\n/pending — черга нових заявок і резерву\n/export_participants — анкети учасників CSV\n/export_speakers — анкети спікерів CSV\n/retry — повторити сповіщення з черги\n\nСтатуси внутрішні. Повідомлення заявникам автоматично не надсилаються.',
+          text: 'Форум національної ідентичності\n\nКеруйте заявками кнопками під повідомленнями.\n/stats — актуальні підсумки заявок\n/pending — черга нових заявок і резерву\n/export_participants — анкети учасників CSV\n/export_speakers — анкети спікерів CSV\n/retry — повторити сповіщення з черги\n\nСтатуси внутрішні. Повідомлення заявникам автоматично не надсилаються.',
         });
       }
     }
