@@ -55,6 +55,7 @@ export function keyboard(app: Application) {
         },
         { text: 'Повернути в нові', callback_data: `new:${app.id}` },
       ],
+      [{ text: 'Черга заявок', callback_data: 'q:' + (app.kind === 'speaker' ? 's' : 'p') + ':p' }],
     ],
   };
 }

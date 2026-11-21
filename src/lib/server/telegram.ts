@@ -5,6 +5,7 @@ class TelegramRequestError extends Error {
   constructor(
     code: number,
     readonly expiredCallback = false,
+    readonly unchangedMessage = false,
   ) {
     super(`Telegram request failed (${code})`);
     this.name = 'TelegramRequestError';
@@ -38,7 +39,13 @@ export async function telegram<T = unknown>(
       method === 'answerCallbackQuery' &&
       code === 400 &&
       /query is too old|query id is invalid|query_id_invalid/i.test(result.description ?? '');
-    throw new TelegramRequestError(code, expiredCallback);
+    throw new TelegramRequestError(
+      code,
+      expiredCallback,
+      method === 'editMessageText' &&
+        code === 400 &&
+        /message is not modified/i.test(result.description ?? ''),
+    );
   }
   return result.result;
 }
@@ -48,6 +55,14 @@ export async function answerCallbackQuery(body: Record<string, unknown>): Promis
   } catch (error) {
     // Telegram expires callback IDs; their spinner must not block the action or retry forever.
     if (!(error instanceof TelegramRequestError && error.expiredCallback)) throw error;
+  }
+}
+
+export async function editMessageText(body: Record<string, unknown>): Promise<void> {
+  try {
+    await telegram('editMessageText', body);
+  } catch (error) {
+    if (!(error instanceof TelegramRequestError && error.unchangedMessage)) throw error;
   }
 }
 

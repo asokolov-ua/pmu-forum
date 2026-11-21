@@ -2,10 +2,17 @@ import type { APIRoute } from 'astro';
 import { timingSafeEqual } from 'node:crypto';
 import { env, isAdmin } from '../../../lib/server/config';
 import { database, getApplication } from '../../../lib/server/database';
-import { telegram, answerCallbackQuery, drainNotifications } from '../../../lib/server/telegram';
+import {
+  telegram,
+  answerCallbackQuery,
+  editMessageText,
+  drainNotifications,
+} from '../../../lib/server/telegram';
 import { json, readJson } from '../../../lib/server/http';
 import { summary, keyboard, details, parseCallback, exportCsv } from '../../../lib/telegram-format';
 import type { Application } from '../../../lib/validation';
+import { parseReviewCallback, reviewMessage } from '../../../lib/telegram-queue';
+import { readReviewPage } from '../../../lib/server/review-queue';
 export const prerender = false;
 type TelegramUpdate = {
   callback_query?: {
@@ -46,6 +53,17 @@ export const POST: APIRoute = async ({ request }) => {
         });
         return json({ ok: true });
       }
+      const reviewRequest = parseReviewCallback(query.data);
+      if (reviewRequest) {
+        await answerCallbackQuery({ callback_query_id: query.id, text: 'Оновлюємо чергу.' });
+        const page = await readReviewPage(reviewRequest);
+        await editMessageText({
+          chat_id: env('TELEGRAM_CHAT_ID'),
+          message_id: query.message!.message_id,
+          ...reviewMessage(page),
+        });
+        return json({ ok: true });
+      }
       const action = parseCallback(query.data);
       if (!action) return json({ ok: true });
       if (action.action === 'view') {
@@ -54,9 +72,19 @@ export const POST: APIRoute = async ({ request }) => {
           callback_query_id: query.id,
           text: app ? 'Надсилаємо анкету.' : 'Заявку не знайдено.',
         });
-        if (app)
-          for (const text of details(app))
-            await telegram('sendMessage', { chat_id: env('TELEGRAM_CHAT_ID'), text });
+        if (app) {
+          const chunks = details(app);
+          for (const [index, text] of chunks.entries())
+            await telegram('sendMessage', {
+              chat_id: env('TELEGRAM_CHAT_ID'),
+              text,
+              ...(index === chunks.length - 1
+                ? {
+                    reply_markup: keyboard(app),
+                  }
+                : {}),
+            });
+        }
       } else {
         await database('rpc/update_forum_status', {
           p_id: action.id,
@@ -87,7 +115,10 @@ export const POST: APIRoute = async ({ request }) => {
       if (!isAdmin(message.from?.id) || String(message.chat?.id) !== env('TELEGRAM_CHAT_ID'))
         return json({ ok: true });
       const command = message.text?.split(/\s/)[0]?.split('@')[0];
-      if (command === '/export_participants' || command === '/export_speakers') {
+      if (command === '/pending' || command === '/applications') {
+        const page = await readReviewPage({ kind: 'participant', filter: 'pending' });
+        await telegram('sendMessage', { chat_id: env('TELEGRAM_CHAT_ID'), ...reviewMessage(page) });
+      } else if (command === '/export_participants' || command === '/export_speakers') {
         const kind = command === '/export_speakers' ? 'speaker' : 'participant';
         const apps: Application[] = [];
         for (let offset = 0; ; offset += 500) {
@@ -115,7 +146,7 @@ export const POST: APIRoute = async ({ request }) => {
       } else if (command === '/help' || command === '/start') {
         await telegram('sendMessage', {
           chat_id: env('TELEGRAM_CHAT_ID'),
-          text: 'Форум національної ідентичності\n\nКеруйте заявками кнопками під повідомленнями.\n/export_participants — анкети учасників CSV\n/export_speakers — анкети спікерів CSV\n/retry — повторити сповіщення з черги\n\nСтатуси внутрішні. Повідомлення заявникам автоматично не надсилаються.',
+          text: 'Форум національної ідентичності\n\nКеруйте заявками кнопками під повідомленнями.\n/pending — черга нових заявок і резерву\n/export_participants — анкети учасників CSV\n/export_speakers — анкети спікерів CSV\n/retry — повторити сповіщення з черги\n\nСтатуси внутрішні. Повідомлення заявникам автоматично не надсилаються.',
         });
       }
     }
